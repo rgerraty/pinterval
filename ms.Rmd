@@ -21,7 +21,7 @@ affiliation:
     institution: Columbia University, Department of Psychology
 
 abstract: |
-  P biases confidence intervals. 
+  Confidence intervals (CI) do not allow post-data inference on parameter values. 
   
 note: |  
   The authors declare no conflicts of interest.
@@ -44,16 +44,32 @@ output: papaja::apa6_pdf
 library(papaja)
 library(ggplot2)
 library(dplyr)
+library(grid)
 apa_prepare_doc() # Prepare document for rendering
+theme_set(theme_minimal() + theme(
+    legend.position = 'none',
+    panel.grid = element_blank(),
+    panel.margin=unit(0.1, "cm"),
+    panel.border = element_rect(fill = NA,colour = "grey20", size=.65),
+    axis.text = element_text(size=8),
+    axis.ticks = element_line(size = .2),
+    axis.ticks.length=unit(-0.1, "cm"), 
+    axis.ticks.margin=unit(0.2, "cm")
+    )
+)
 ```
 
 # Introduction
 
 <!--- This should be an introduction to NHSTP, its problems, and the subsequent suggestions that CIs will save our butts. --->
 
-Scientists, psychological or otherwise, routinely use null hypothesis significance testing procedures (NHSTP) to move from data to conclusions---a practice thats applicability has been debated since its inception. Recently, concerns about the replicability and reliability of empirical findings [@open_science_collaboration_estimating_2015] have underlined the concerns about NHSTP as _the_ valid form of statistical inference [ @gelman_statistical_2014].
+Scientists, psychological or otherwise, routinely use null hypothesis significance testing procedures (NHSTP) to move from data to conclusions---a practice thats applicability has been debated since its inception. Recently, concerns about the replicability and reliability of empirical findings [@open_science_collaboration_estimating_2015] have underlined the concerns about NHSTP as _the_ valid form of statistical inference [@cumming_new_2014; @gelman_statistical_2014].
 
-One response to the growing concerns regarding the reliability of NHSTP has been an appeal to effect size and interval estimation in addition---or as replacement---to NHSTP test statistics [@cumming_new_2014]. For example, many journals in psychology and neuroscience now ask authors to include _confidence intervals_ (CI) with their test statistics.
+One response to the growing concerns regarding the reliability of NHSTP has been an appeal to effect size and interval estimation in addition---or as replacement---to NHSTP test statistics [@cumming_new_2014]. For example, many journals in psychology and neuroscience now ask authors to include _confidence intervals_ (CI) with their test statistics. These confidence intervals are intended, by practitioners, to communicate unbiased estimates of likely ranges of parameter values, although the common computations simply result in ranges of parameter values that would not be rejected by the very statistical test the CI is supposed to supplement. This approach is problematic from at least two perspectives:
+
+* CIs do not support probability statements about parameters
+* CIs are designed (Neyman, 1957) to be a procedure of generating a set of intervals that, as a whole set, contain the true parameter value X% of the time
+    * This property is severely compromised by the current practice of using CIs as a post-data inferential tool, as we show in this paper
 
 ## A Confidence Interval
 
@@ -71,20 +87,15 @@ We performed a simulation study...
 
 # Results
 
-```{r, fig.cap = "Figure 1"}
-pppower <- c()
-pee_coverage <- c()
-k <- 1
+```{r simulation}
 # default values (corresponds to power of ~0.65)
-for (i in seq(.1, 1, .02)) {
-mu=i
+mu=1
 sigma=2.5
-n=40
+n=36
 alpha=.05
 
 ppower = power.t.test(n=n, delta=mu, sd=sigma, sig.level=alpha, type="one.sample")
 ppower$power
-pppower[k] <- ppower$power
 N <- 1000  # Number of samples
 # generate N random samples of size n from normal distribution
 set.seed(1)
@@ -101,17 +112,56 @@ d <- data.frame(mean = bt_means,
                 upper = upper,
                 lower = lower,
                 n = 1:N)
+signif_mu_in_interval <- nrow(filter(d, 
+                                     lower > 0, 
+                                     lower <= mu, 
+                                     upper >= mu)) / N
+mu_in_interval <- nrow(filter(d, 
+                               lower <= mu, 
+                               upper >= mu)) / N
+```
 
-signif_mu_in_interval <- nrow(filter(d, lower > 0, lower <= mu, upper >= mu)) / N
-pee_coverage[k] <- signif_mu_in_interval
-
-signif_mu_in_interval
-k <- k + 1
+```{r power_vs_coverage, cache=T}
+# plot power againt coverage
+alpha = .05
+sigma = 2.5
+mu = 1
+f_se <- function(x) {sd(x) / sqrt(k)}
+N <- 500
+pvsc <- data.frame("pwr" = NA, # power 
+                     "coverage" = NA, # nominal coverage (1-alpha)
+                     "coverage_p" = NA) # coverage of significant intervals
+k <- 10
+for (i in 1:70) {
+    pvsc[i, 1] <- power.t.test(
+        n = k, 
+        delta = mu, 
+        sd = sigma, 
+        sig.level = alpha, 
+        type = "one.sample"
+        )$power
+    bt <- replicate(rnorm(n = k, mean = mu, sd = sigma), n = N)
+    means <- apply(bt, 2, mean)  # sample means
+    ses <- apply(bt, 2, f_se)  # sample standard errors
+    # generate bounds for 1-alpha confidence intervals for each sample
+    crit <- qt(1 - alpha/2, df = k-1)
+    upper <- means + crit * ses
+    lower <- means - crit * ses
+    d <- data.frame(mean = means,
+                upper = upper,
+                lower = lower,
+                n = 1:N)
+    # this is a bit of a tautology; always .95
+    pvsc[i, 2] <- nrow(filter(d, lower <= mu, upper >= mu)) / N
+    pvsc[i, 3] <- nrow(filter(d, lower > 0, lower <= mu, upper >= mu)) / N
+    k <- k + 1
 }
-signimu
-pppower
-plot(pppower, pee_coverage)
-summary(lm(pee_coverage~pppower))
+pvsc <- mutate(pvsc, bias = coverage - coverage_p)
+ggplot(pvsc, aes(x=pwr)) +
+    geom_point(aes(y=coverage), col="red") +
+    geom_point(aes(y=coverage_p), col="black") +
+    scale_x_continuous(breaks = seq(.1, .9, .2)) +
+    scale_y_continuous(breaks = seq(.1, .9, .2))
 ```
 
 # Discussion
