@@ -1,0 +1,138 @@
+---
+title: "Covered in P: The consequences of null hypothesis significance testing on point and interval estimates"
+shorttitle: "P stains"
+author: 
+  - name: Raphael T. Gerraty
+    affiliation: 1
+    corresponding: yes    # Define only one corresponding author
+    address: Columbia University, 
+            Psychology Department, 
+            406 Schermerhorn, 
+            1190 Amsterdam Avenue, 
+            New York, NY 10027
+    email: https://github.com/neurostorm
+  - name: Matti Vuorre
+    affiliation: 1
+    corresponding: no
+    address: No address provided.
+    email: https://github.com/neurostorm
+affiliation:
+  - id: 1
+    institution: Columbia University, Department of Psychology
+
+abstract: |
+  P biases confidence intervals. 
+  
+note: |  
+  The authors declare no conflicts of interest.
+  
+keywords: "confidence interval, NHST"
+
+wordcount: "Short and sweet."
+
+class: man
+lang: american
+figsintext: no
+lineno: yes
+bibliography:
+  - p-intervals.bib
+
+output: papaja::apa6_pdf
+---
+
+```{r setup, message = FALSE, warning = FALSE}
+library(papaja)
+library(ggplot2)
+library(dplyr)
+apa_prepare_doc() # Prepare document for rendering
+```
+
+# Introduction
+
+<!--- This should be an introduction to NHSTP, its problems, and the subsequent suggestions that CIs will save our butts. --->
+
+Scientists, psychological or otherwise, routinely use null hypothesis significance testing procedures (NHSTP) to move from data to conclusions---a practice thats applicability has been debated since its inception. Recently, concerns about the replicability and reliability of empirical findings [@open_science_collaboration_estimating_2015] have underlined the concerns about NHSTP as _the_ valid form of statistical inference [ @gelman_statistical_2014].
+
+One response to the growing concerns regarding the reliability of NHSTP has been an appeal to effect size and interval estimation in addition---or as replacement---to NHSTP test statistics [@cumming_new_2014]. For example, many journals in psychology and neuroscience now ask authors to include _confidence intervals_ (CI) with their test statistics.
+
+## A Confidence Interval
+
+<!--- Here we briefly cite a dozen statistics textbooks misusing confidence intervals [and cite the band of bayesians work on this; http://bayesfactor.blogspot.co.uk/2015/12/confidence-intervals-what-they-are-and.html], and give the correct definition of a confidence interval. We should also point out that there's no confidence, in principle, in confidence intervals, and maybe note bayesian intervals? --->
+
+In this paper, we report an unappealing property of confidence intervals. Because the claim of confidence intervals is to have a coverage proportion of the true parameter value equal to the nominal value (usually 95%), it is crucial that this claim is substantiated in its long-run property for a CI to be what it claims to be (not a _confidence_ interval.) We show that using confidence intervals _in addition_ to P values leads to an undesirable distortion of the coverage proportion.
+
+## P stains the nominal coverage proportion
+
+<!--- Here we describe the gist of the paper. --->
+
+# Methods
+
+We performed a simulation study...
+
+# Results
+
+```{r, fig.cap = "Figure 1"}
+# default values (corresponds to power of ~0.65)
+mu=1
+sigma=2.5
+n=36
+alpha=.05
+
+ppower = power.t.test(n=n, delta=mu, sd=sigma, sig.level=alpha, type="one.sample")
+
+N <- 10000  # Number of samples
+# generate N random samples of size n from normal distribution
+set.seed(1)
+bt <- replicate(rnorm(n=n, mean=mu, sd=sigma), n=N)
+bt_means <- apply(bt, 2, mean)  # sample means
+f_se <- function(x) {sd(x) / sqrt(n)}
+bt_ses <- apply(bt, 2, f_se)  # sample standard errors
+
+# generate bounds for 1-alpha confidence intervals for each sample
+crit <- qt(1-alpha/2, df=n-1)
+upper <- bt_means + crit*bt_ses
+lower <- bt_means - crit*bt_ses
+d <- data.frame(mean = bt_means,
+                upper = upper,
+                lower = lower,
+                n = 1:N)
+
+# proportion of intervals containing true population mean
+mu_in_interval <- sum((lower <= mu) & (upper >= mu)) / N
+
+# proportion of sample means equal to true population mean (a.k.a. zero)
+mean_equals_mu <- sum(bt_means==mu) / N
+
+signif_mean <- d %>%
+    filter(lower > 0) %>%
+    select(mean)
+
+# histogram
+hist(bt_means, breaks=100, main=paste('Sampling Distribution of Means, power =', round(ppower$power, 3)))
+# expected value of results significant at alpha
+abline(v=mean(signif_mean$mean), col="red", lwd=4)
+# expected value of all means (also expected value of population mean)
+abline(v=mean(bt_means), col="black", lwd=4)
+text(x=mean(signif_mean$mean), y=-50, labels="Mean of significant results", col="red")
+text(x=mean(bt_means), y=450, labels="True Mean")
+
+# %calculate proportion of significant confidence intervals containing true population mean
+# signif_mu_in_interval=sum(low(low>0)<=mu & upp(low>0)>=mu)/10000
+signif_mu_in_interval <- nrow(filter(d, lower > 0, lower <= mu, upper >= mu)) / N
+signif_mu_in_interval
+```
+
+# Discussion
+
+Here we show a pervasive bias in the paramaters and intervals passing a null hypothesis significance threshold. We don't know if this result is well known to statisticians, but from the perspective of practitioners, we found it suprising. This paper was motivated in part by the discussions with colleagues who were equally suprised by the biases induced by hypothesis testing, especially on interval estimation. The "significance filter" has been discussed previously [@gelman_statistical_2011], but to our knowledge there have been no discussions of the effect of this filter on the frequency properties of confidence intervals. 
+
+We note that, while the issues discussed in this paper are related to questionable research practices as well as known issues in null hypothesis testing such as alpha inflation due to multiple comparisons, the biased point estimates and interval coverage for significant results we discuss here are present in expectation even for single tests. Thus this bias will be more severe for significant results which have been filtered through such processes, but...
+
+# References
+```{r create_r-references}
+r_refs(file = "r-references.bib")
+```
+
+\setlength{\parindent}{-0.5in}
+\setlength{\leftskip}{0.5in}
+\setlength{\parskip}{8pt}
