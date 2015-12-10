@@ -75,7 +75,9 @@ One response to the growing concerns regarding the reliability of NHSTP has been
 
 <!--- Here we briefly cite a dozen statistics textbooks misusing confidence intervals [and cite the band of bayesians work on this; http://bayesfactor.blogspot.co.uk/2015/12/confidence-intervals-what-they-are-and.html], and give the correct definition of a confidence interval. We should also point out that there's no confidence, in principle, in confidence intervals, and maybe note bayesian intervals? --->
 
-In this paper, we report an unappealing property of confidence intervals. Because the claim of confidence intervals is to have a coverage proportion of the true parameter value equal to the nominal value (usually 95%), it is crucial that this claim is substantiated in its long-run property for a CI to be what it claims to be (not a _confidence_ interval.) We show that using confidence intervals _in addition_ to P values leads to an undesirable distortion of the coverage proportion.
+While the first of these interpretations is inaccurately held by many researchs in psychology and other fields (citing stuff), 
+
+In this paper, we report an unappealing property of confidence intervals. Because the claim of confidence intervals is to have a coverage proportion of the true parameter value equal to the nominal value (usually 95%), it is crucial that this claim is substantiated in its long-run property for a CI to be what it claims to be (not a _confidence_ interval.) We show that using confidence intervals _in addition_ to P values leads to an undesirable distortion of the coverage proportion. This is a direct result of the more general problem with interpreting any particular _obtained_ CI in terms of frequency coverage, but we feel the specific case of significance thresholding on this interpretation is worth describing, given the per
 
 ## P stains the nominal coverage proportion
 
