@@ -123,7 +123,7 @@ mu_in_interval <- nrow(filter(d,
                                upper >= mu)) / N
 ```
 
-```{r power_vs_coverage, cache=T}
+```{r power_vs_coverage, cache=T, fig.cap = "Coverage proportion of confidence intervals versus statistical power. The red line represents the nominal coverage proportion (95%), black line is the actual coverage proportion when CIs are conditioned on the result being significant."}
 # plot power againt coverage
 alpha = .05
 sigma = 2.5
@@ -158,12 +158,17 @@ for (i in 1:70) {
     pvsc[i, 3] <- nrow(filter(d, lower > 0, lower <= mu, upper >= mu)) / N
     k <- k + 1
 }
-pvsc <- mutate(pvsc, bias = coverage - coverage_p)
-ggplot(pvsc, aes(x=pwr)) +
-    geom_point(aes(y=coverage), col="red") +
-    geom_point(aes(y=coverage_p), col="black") +
-    scale_x_continuous(breaks = seq(.1, .9, .2)) +
-    scale_y_continuous(breaks = seq(.1, .9, .2))
+# plot simulation results and "model" results
+mutate(pvsc, 
+       true_cvg_sig = pwr - .05/2,  # true coverage | significant result
+       true_cvg_all = .95) %>%  # nominal coverage
+    ggplot(aes(x=pwr)) +
+    geom_point(aes(y=coverage), col="red", shape=1) +
+    geom_line(aes(y=true_cvg_all), col="red") +
+    geom_point(aes(y=coverage_p), col="black", shape=1) +
+    geom_line(aes(y=true_cvg_sig), col="black") +
+    scale_x_continuous("Statistical power", breaks = seq(.1, .9, .2)) +
+    scale_y_continuous("Coverage proportion", breaks = seq(.1, .9, .2))
 ```
 
 # Discussion
@@ -173,9 +178,7 @@ Here we show a pervasive bias in the paramaters and intervals passing a null hyp
 We note that, while the issues discussed in this paper are related to questionable research practices as well as known issues in null hypothesis testing such as alpha inflation due to multiple comparisons, the biased point estimates and interval coverage for significant results we discuss here are present in expectation even for single tests. Thus this bias will be more severe for significant results which have been filtered through such processes, but...
 
 # References
-```{r create_r-references}
-r_refs(file = "r-references.bib")
-```
+
 
 \setlength{\parindent}{-0.5in}
 \setlength{\leftskip}{0.5in}

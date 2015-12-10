@@ -1,1 +1,4 @@
 *.pdf
+*.tex
+ms_cache/
+ms_files/
