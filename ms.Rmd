@@ -1,6 +1,6 @@
 ---
 title: "Covered with P: The consequences of null hypothesis significance testing on point and interval estimates"
-shorttitle: "When Fisher and Neyman Cross Streams, It Makes a Mess"
+shorttitle: "P Coverage"
 author: 
   - name: Raphael T. Gerraty*
     affiliation: 1
@@ -61,27 +61,17 @@ theme_set(theme_minimal() + theme(
 
 # Introduction
 
-<!--- This should be an introduction to NHSTP, its problems, and the subsequent suggestions that CIs will save our butts. --->
-
 Scientists, psychological or otherwise, routinely use null hypothesis significance testing procedures (NHSTP) to move from data to conclusions---a practice whose applicability has been debated since its inception. Recently, concerns about the replicability and reliability of empirical findings [@open_science_collaboration_estimating_2015] have reignited questions about the validity of NHSTP as they are implemented and interpreted in practice [@cumming_new_2014; @gelman_statistical_2014].
 
-One response to the growing concerns regarding the reliability of NHSTP has been an appeal to effect size and interval estimation in addition---or as replacement---to NHSTP test statistics [@cumming_new_2014]. For example, many journals in psychology and neuroscience now ask authors to include _confidence intervals_ (CI) with their test statistics. These confidence intervals are intended, by practitioners, to communicate unbiased estimates of likely ranges of parameter values, although the common computations simply result in ranges of parameter values that would not be rejected by the very statistical test the CI is supposed to supplement. This approach is problematic from at least two perspectives:
+One response to the growing concerns regarding the reliability of NHSTP has been an appeal to effect size and interval estimation in addition---or as replacement---to NHSTP test statistics [@cumming_new_2014]. For example, many journals in psychology and neuroscience now ask authors to include _confidence intervals_ (CI) with their test statistics. These confidence intervals are intended, by practitioners, to communicate estimates of likely ranges of parameter values, although the common computations simply result in ranges of parameter values that would not be rejected by the very statistical test the CI is supposed to supplement. This approach is problematic from at least two perspectives:
 
 * CIs do not support probability statements about parameters
 * CIs are designed (Neyman, 1957) to be a procedure of generating a set of intervals that, as a whole set, contain the true parameter value X% of the time
     * This property is severely compromised by the current practice of using CIs as a post-data inferential tool, as we show in this paper
 
-## A Confidence Interval
-
-<!--- Here we briefly cite a dozen statistics textbooks misusing confidence intervals [and cite the band of bayesians work on this; http://bayesfactor.blogspot.co.uk/2015/12/confidence-intervals-what-they-are-and.html], and give the correct definition of a confidence interval. We should also point out that there's no confidence, in principle, in confidence intervals, and maybe note bayesian intervals? --->
-
 While the first of these perspectives is misunderstood by many researchers in psychology and other fields (citing stuff), we focus here on the second, which is more subtle and even less appreciated among practitioners. A search of [searching for textbooks in a principled way] shows that ~X% [surely some depressing number] endorse the view that the frequency coverage or "confidence" of a CI refers to the specific values obtained for a _particular_ interval. This is an incorrect interpretation to begin with, but given its widespread acceptance it is important to describe specific examples in which such an interpretation produces misleading results. 
 
-In this paper, we report an unappealing property of confidence intervals for results that pass a significance test. Because the claim of confidence intervals is to have a coverage proportion of the true parameter value equal to the nominal value (usually 95%), it is crucial that this claim is substantiated in its long-run property for a CI to be what it claims to be (not a _confidence_ interval.) We show that using confidence intervals _in addition_ to P values leads to an undesirable distortion of the coverage proportion. This is a direct result of the more general problem with interpreting any particular _obtained_ CI in terms of frequency coverage, but we feel the specific case of significance thresholding on this interpretation is worth describing, given the pervasive reporting and interpretation of such intervals following NHSTP in a wide range of research areas. We demonstrate analytically and with simulations that the proportion of confidence intervals that are significant _and_ contain the true parameter in question is a function of the power of a statistical procedure. Given the low power of many psychological studies (cite), and the widespread belief that obtained confidence intervals' nominal coverage provides valid information about parameters of interest (see blank for recommendations along this line), this demonstration may be of use to practitioners who feel confused or even strongly about the benefits of confidence interval estimation in NHSTP.
-
-## P stains the nominal coverage proportion
-
-<!--- Here we describe the gist of the paper. --->
+In this paper, we report an unappealing property of obtained confidence intervals for results that pass a significance test. Because the claim of confidence intervals is to have a coverage proportion of the true parameter value equal to the nominal value (usually 95%), it is crucial that this claim is substantiated in its long-run property for a CI to be what it claims to be (not a _confidence_ interval.) We show that using confidence intervals _in addition_ to P values leads to an undesirable distortion of the coverage proportion. This is a direct result of the more general problem with interpreting any particular _obtained_ CI in terms of frequency coverage, but we feel the specific case of significance thresholding on this interpretation is worth describing, given the pervasive reporting and interpretation of such intervals following NHSTP in a wide range of research areas. We demonstrate analytically and with simulations that the proportion of confidence intervals that are significant _and_ contain the true parameter in question is a function of the power of a statistical procedure. Given the low power of many psychological studies (cite), and the widespread belief that obtained confidence intervals' nominal coverage provides valid information about parameters of interest (see blank for recommendations along this line), this demonstration may be of use to practitioners who feel confused or even strongly about the benefits of confidence interval estimation in NHSTP.
 
 # Methods
 
