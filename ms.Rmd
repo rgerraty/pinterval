@@ -143,7 +143,7 @@ for (i in 1:70) {
                 n = 1:N)
     # this is a bit of a tautology; always .95
     pvsc[i, 2] <- nrow(filter(d, lower <= mu, upper >= mu)) / N
-    pvsc[i, 3] <- nrow(filter(d, lower > 0, lower <= mu, upper >= mu)) / N
+    pvsc[i, 3] <- nrow(filter(d, lower > 0 | upper<0, lower <= mu, upper >= mu)) / N
     k <- k + 1
 }
 # plot simulation results and "model" results
