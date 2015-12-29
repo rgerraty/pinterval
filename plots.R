@@ -42,7 +42,7 @@ p1 <- ggplot(d, aes(x = mean), alpha = .5) +
           panel.grid.major = element_blank(),
           panel.border = element_blank())
 # CIs (lower panel) -- show 100 CIs
-subd <- filter(d, n < 100)
+subd <- filter(d, n < 50)
 p2 <- ggplot(subd, aes(y = n, x = mean, xmin = lower, xmax = upper)) +
     # all CIs
     geom_errorbarh(col = col_vals[1]) +
