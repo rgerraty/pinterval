@@ -74,13 +74,15 @@ While the first of these perspectives is misunderstood by many researchers in ps
 
 In this paper, we report an unappealing property of obtained confidence intervals for results that pass a significance test. Because the claim of confidence intervals is for the procedure to have a coverage proportion of the true parameter value equal to the nominal value (usually 95%), it is crucial that this claim is substantiated in its long-run property for a CI to be what it claims to be. We show that using confidence intervals _in addition_ to P values leads to an undesirable distortion of the coverage proportion. This is a direct result of the more general problem with interpreting any particular _obtained_ CI in terms of the frequency coverage of the procedure used to generate CIs, but we feel the specific case of significance thresholding on this interpretation is worth describing, given the pervasive reporting and interpretation of such intervals following NHSTP in a wide range of research areas. We demonstrate analytically and with simulations that the proportion of confidence intervals that are significant _and_ contain the true parameter in question is a function of the power of a statistical procedure. Given the low power of many psychological studies (cite), and the widespread belief that obtained confidence intervals' nominal coverage provides valid information about parameters of interest (see blank for recommendations along this line), this demonstration may be of use to practitioners who feel confused or even strongly about the benefits of confidence interval estimation in NHSTP.
 
+If we know whether or not a CI excludes zero (or passes a significance threshold more generally), we can say something more specific about the frequency properties of the procedure that produced it. Specifically, we know
+
 # Methods
 
 We performed a simulation study...
 
 # Results
 
-```{r simulation, fig.cap = "Simulated sampling distribution of effects, power = 0.65, ES = 1. The grey vertical line indicates the mean effect of all samples, and the red line the mean of significant samples. The simulated sampling distributions are shown as density curves on the top, and a sample of 100 CIs in the bottom panel."}
+```{r simulation, fig.cap = "Simulated sampling distribution of effects, power = 0.65, ES = 1. The grey vertical line indicates the mean effect of all samples, and the red line the mean of significant samples. The simulated sampling distributions are shown as density curves on the top, and a sample of 50 CIs in the bottom panel."}
 # default values (corresponds to power of ~0.65)
 mu=1
 sigma=2.5
@@ -120,51 +122,53 @@ We simulated 10.000 one-sample t-tests (Figure 1), and plotted the resulting CIs
 
 ```{r power_vs_coverage, cache=F, fig.cap = "Coverage proportion of confidence intervals versus statistical power. The red line represents the nominal coverage proportion (95%), black line is the actual coverage proportion when CIs are conditioned on the result being significant."}
 # plot power against coverage
+
 alpha = .05
 sigma = 2.5
 mu = 1
 f_se <- function(x) {sd(x) / sqrt(k)}
 N <- 500
 pvsc <- data.frame("pwr" = NA, # power 
-                     "coverage" = NA, # nominal coverage (1-alpha)
-                     "coverage_p" = NA) # coverage of significant intervals
+                   "coverage" = NA, # nominal coverage (1-alpha)
+                   "coverage_p" = NA) # coverage of significant intervals
 k <- 10
-for (i in 1:70) {
-    pvsc[i, 1] <- power.t.test(
-        n = k, 
-        delta = mu, 
-        sd = sigma, 
-        sig.level = alpha, 
-        alternative = "two.sided",
-        type = "one.sample"
-        )$power
-    bt <- replicate(rnorm(n = k, mean = mu, sd = sigma), n = N)
-    means <- apply(bt, 2, mean)  # sample means
-    ses <- apply(bt, 2, f_se)  # sample standard errors
-    # generate bounds for 1-alpha confidence intervals for each sample
-    crit <- qt(1 - alpha/2, df = k-1)
-    upper <- means + crit * ses
-    lower <- means - crit * ses
-    d <- data.frame(mean = means,
-                upper = upper,
-                lower = lower,
-                n = 1:N)
-    # this is a bit of a tautology; always .95
-    pvsc[i, 2] <- nrow(filter(d, lower <= mu, upper >= mu)) / N
-    pvsc[i, 3] <- nrow(filter(d, lower > 0 | upper<0, lower <= mu, upper >= mu)) / N
-    k <- k + 1
+for (i in 1:250) {
+  pvsc[i, 1] <- power.t.test(
+    n = k, 
+    delta = mu, 
+    sd = sigma, 
+    sig.level = alpha, 
+    alternative = "two.sided",
+    type = "one.sample"
+  )$power
+  bt <- replicate(rnorm(n = k, mean = mu, sd = sigma), n = N)
+  means <- apply(bt, 2, mean)  # sample means
+  ses <- apply(bt, 2, f_se)  # sample standard errors
+  # generate bounds for 1-alpha confidence intervals for each sample
+  crit <- qt(1 - alpha/2, df = k-1)
+  upper <- means + crit * ses
+  lower <- means - crit * ses
+  d <- data.frame(mean = means,
+                  upper = upper,
+                  lower = lower,
+                  n = 1:N)
+  # this is a bit of a tautology; always .95
+  pvsc[i, 2] <- nrow(filter(d, lower <= mu, upper >= mu)) / N
+  signif_samps<-filter(d,lower>0 )
+  pvsc[i, 3] <-nrow(filter(signif_samps, lower<=mu, upper>=mu))/nrow(signif_samps)
+  k <- k + 1
 }
 # plot simulation results and "model" results
 mutate(pvsc, 
        true_cvg_sig = pwr - .05/2,  # true coverage | significant result
        true_cvg_all = .95) %>%  # nominal coverage
-    ggplot(aes(x=pwr)) +
-    geom_point(aes(y=coverage), col="black", shape=1) +
-    geom_line(aes(y=true_cvg_all), col="black") +
-    geom_point(aes(y=coverage_p), col="red", shape=1) +
-    geom_line(aes(y=true_cvg_sig), col="red") +
-    scale_x_continuous("Statistical power", breaks = seq(.1, .9, .2)) +
-    scale_y_continuous("Coverage proportion", breaks = seq(.1, .9, .2))
+  ggplot(aes(x=pwr)) +
+  geom_point(aes(y=coverage), col="black", shape=1) +
+  geom_line(aes(y=true_cvg_all), col="black") +
+  geom_point(aes(y=coverage_p), col="red", shape=1) +
+  geom_line(aes(y=true_cvg_sig), col="red") +
+  scale_x_continuous("Statistical power", breaks = seq(.1, .9, .2)) +
+  scale_y_continuous("Coverage proportion", breaks = seq(.1, .9, .2))
 ```
 
 # Discussion
