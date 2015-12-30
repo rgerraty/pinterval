@@ -1,8 +1,9 @@
 # Plot coverage against various X
 
-cov_sim <- function(x_name = "n", # Name of X
+cov_sim <- function(x_name = "power", # X axis
+                    x_val = "n", # Manipulated value (and plot title)
                     n = 36, # Range (or value) of sample size
-                    mu = .5, # Range (or value) of sample mean
+                    mu = .7, # Range (or value) of sample mean
                     sd = 2.5, # Range (or value) of sample sd
                     alpha = .05, # Range (or value) of alpha
                     n_sims = 500 # n of exps at each level of X
@@ -68,6 +69,7 @@ cov_sim <- function(x_name = "n", # Name of X
         geom_line(aes(y = power), col="gray50") +
         geom_point(aes(y=coverage_sig_a), col="black", shape=1) +
         geom_point(aes(y=coverage_sig_b), col="red", shape=1) +
+        ggtitle(x_val) +
         scale_x_continuous(x_name,
                            limits = c(0, 1)) +
         scale_y_continuous("Coverage proportion", 
@@ -78,9 +80,12 @@ cov_sim <- function(x_name = "n", # Name of X
     return(list(data = cov_dat, plot = p1))
 }
 
-s1 <- cov_sim(x_name = "power", n = seq(3, 104, length=100))
-s2 <- cov_sim(x_name = "power", mu = seq(.2, 1.5, length=100))
-s3 <- cov_sim(x_name = "power", sd = seq(1, 6, length=100))
+s1 <- cov_sim(x_name = "power", x_val = "n", 
+              n = seq(3, 204, length=100))
+s2 <- cov_sim(x_name = "power", x_val = "mu",
+              mu = seq(.1, 1.8, length=100))
+s3 <- cov_sim(x_name = "power", x_val = "sigma",
+              sd = seq(1, 7, length=100))
 
 grid.arrange(s1$plot,
              s2$plot,
