@@ -120,7 +120,7 @@ source("plots.R")
 
 We simulated 10.000 one-sample t-tests (Figure 1), and plotted the resulting CIs coverage property for all samples, and significance-filtered samples (Figure 2.)
 
-```{r power_vs_coverage, cache=F, fig.cap = "Coverage proportion of confidence intervals versus statistical power. The red line represents the nominal coverage proportion (95%), black line is the actual coverage proportion when CIs are conditioned on the result being significant."}
+```{r coverage_X, cache=F, fig.cap = "Coverage proportion of confidence intervals versus statistical power. The red line represents the nominal coverage proportion (95%), black line is the actual coverage proportion when CIs are conditioned on the result being significant."}
 # plot power against coverage
 
 alpha = .05
@@ -154,8 +154,9 @@ for (i in 1:250) {
                   n = 1:N)
   # this is a bit of a tautology; always .95
   pvsc[i, 2] <- nrow(filter(d, lower <= mu, upper >= mu)) / N
-  signif_samps<-filter(d,lower>0 )
-  pvsc[i, 3] <-nrow(filter(signif_samps, lower<=mu, upper>=mu))/nrow(signif_samps)
+  signif_samps <- filter(d, lower > 0)
+  pvsc[i, 3] <-nrow(filter(signif_samps, lower <= mu,
+                           upper >= mu)) / nrow(signif_samps)
   k <- k + 1
 }
 # plot simulation results and "model" results
